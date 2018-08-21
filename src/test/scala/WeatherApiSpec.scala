@@ -26,12 +26,12 @@ class WeatherApiSpec extends FlatSpec with Matchers with ScalaFutures with Befor
   implicit val ec = system.dispatcher
 
   def defaultConfig = Map(
-    "weather-api" -> s"http://localhost:${port()}/data/2.5/weather",
-    "weather-app-id" -> "12345")
+    Config.WeatherURL -> s"http://localhost:${port()}/data/2.5/weather",
+    Config.WeatherAppId -> "12345")
 
   "when the weather API is queried, the request & call stages" should "return the weather" in {
     val waiter = new Waiter
-    val config = Map("weather-api" -> s"http://localhost:$port/data/2.5/weather", "weather-app-id" -> "")
+    val config = Map(Config.WeatherURL -> s"http://localhost:$port/data/2.5/weather", Config.WeatherAppId -> "")
     val stages = new Stages(Config(config))
     resetJadler()
     val expectedJson =
@@ -67,7 +67,7 @@ class WeatherApiSpec extends FlatSpec with Matchers with ScalaFutures with Befor
 
   "when the weather API call fails, the error" should "be handled correctly" in {
     val waiter = new Waiter
-    val config = Config(Map("weather-api" -> s"http://localhost:$port/data/2.5/weather", "weather-app-id" -> ""))
+    val config = Config(Map(Config.WeatherURL -> s"http://localhost:$port/data/2.5/weather", Config.WeatherAppId -> ""))
 
     val weather = new WeatherProcess(config) {
       val badCall = Flow[HttpRequest].mapAsync(parallelism=1) { _ =>
@@ -88,7 +88,7 @@ class WeatherApiSpec extends FlatSpec with Matchers with ScalaFutures with Befor
 
   "full process spec" should "work" in {
     val waiter = new Waiter
-    val config = Map("weather-api" -> s"http://localhost:$port/data/2.5/weather", "weather-app-id" -> "")
+    val config = Map(Config.WeatherURL -> s"http://localhost:$port/data/2.5/weather", Config.WeatherAppId -> "")
     val stages = new Stages(Config(config))
     import stages._
     resetJadler()

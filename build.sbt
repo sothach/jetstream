@@ -12,6 +12,7 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
   "io.argonaut" %% "argonaut" % "6.2.2",
   "org.wvlet.airframe" %% "airframe-log" % "0.54",
+  "com.github.scopt" %% "scopt" % "3.7.0",
 
   "org.scalatest" %% "scalatest" % "3.0.5" % Test,
   "org.mockito" % "mockito-all" % "2.0.2-beta" % Test,

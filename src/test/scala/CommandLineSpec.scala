@@ -1,6 +1,6 @@
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, PrintStream}
 
-import jetstream.app.{ConsoleInOut, Jetstream, JetstreamRepl}
+import jetstream.app.{Config, ConsoleInOut, Jetstream, JetstreamRepl}
 import net.jadler.Jadler.port
 import org.scalatest.{FlatSpec, Matchers}
 import net.jadler.Jadler._
@@ -17,7 +17,7 @@ class CommandLineSpec extends FlatSpec with Matchers {
     val in = new ByteArrayInputStream(commands.getBytes())
     val out = new ByteArrayOutputStream
     val io = new ConsoleInOut(in,new PrintStream(out))
-    new JetstreamRepl(io).run()
+    new JetstreamRepl(io,Config.default).run()
     out.toString shouldBe expected
   }
 
@@ -29,7 +29,7 @@ class CommandLineSpec extends FlatSpec with Matchers {
     val in = new ByteArrayInputStream(commands.getBytes())
     val out = new ByteArrayOutputStream
     val io = new ConsoleInOut(in,new PrintStream(out))
-    new JetstreamRepl(io).run()
+    new JetstreamRepl(io,Config.default).run()
 
     out.toString shouldBe expected
   }
@@ -56,13 +56,9 @@ class CommandLineSpec extends FlatSpec with Matchers {
     System.setIn(new ByteArrayInputStream(commands))
     val out = new ByteArrayOutputStream
     System.setOut(new PrintStream(out))
-    def defaultConfig = Map(
-      "weather-api" -> s"http://localhost:${port()}/data/2.5/weather",
-      "weather-app-id" -> "12345")
 
-    Jetstream.main(Array(s"http://localhost:${port()}/data/2.5/weather"))
+    Jetstream.main(Array(s"-w=http://localhost:${port()}/data/2.5/weather"))
     closeJadler()
-println(s">$out<")
     out.toString shouldBe expected
   }
 

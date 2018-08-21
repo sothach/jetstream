@@ -65,7 +65,7 @@ case class LookupWeather(console: ConsoleInOut, config: Config)(implicit system:
   }
 }
 
-class JetstreamRepl(console: ConsoleInOut, config: Config = Config.default) {
+class JetstreamRepl(console: ConsoleInOut, config: Config) {
   import scala.annotation.tailrec
   implicit val system = ActorSystem("weather-system")
 
@@ -82,14 +82,10 @@ class JetstreamRepl(console: ConsoleInOut, config: Config = Config.default) {
 
 object Jetstream {
   def main(args: Array[String]): Unit = {
-    val config = if(args.length > 0) {
-      Config(Map(
-        "weather-api" -> args(0),
-        "weather-app-id" -> "12345")
-      )
-    } else {
-      Config.default
-    }
-    new JetstreamRepl(new ConsoleInOut(),config).run()
+    new JetstreamRepl(new ConsoleInOut(),
+      Options.commandLine()
+        .parse(args, Config.default)
+        .getOrElse(Config.default)
+    ).run()
   }
 }
