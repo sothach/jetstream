@@ -1,7 +1,6 @@
 import java.net.ConnectException
 
 import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.HttpRequest
 import akka.stream.scaladsl.{Flow, Sink, Source}
 import akka.stream.{ActorMaterializer, ActorMaterializerSettings}

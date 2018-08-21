@@ -32,4 +32,5 @@ object Config {
     }
     Config(props.get)
   }
+  val default = Config("/endpoints.properties")
 }

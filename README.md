@@ -33,7 +33,7 @@ The logical process flow to query the weather at specified locations and parse t
 and in code:
 ```scala
 def lookup(town: String, country: String) =
-    Source.single((town,country)) via buildRequest via call via accept via parser via diversion via extractor runWith Sink.seq
+ Source.single((town,country)) via buildRequest via call via accept via parser via diversion runWith Sink.seq
 ```
 ### Processing Stages
 #### `buildRequest`

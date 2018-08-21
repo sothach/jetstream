@@ -44,10 +44,11 @@ case class DisplayHelp(parent: InputState) extends State {
     parent.action()
   }
 }
-case class LookupWeather(console: ConsoleInOut)(implicit system: ActorSystem) extends InputState {
+
+case class LookupWeather(console: ConsoleInOut, config: Config)(implicit system: ActorSystem) extends InputState {
   val prompt = s"Please enter town/country: "
   val placePattern = """\s*(\w+)\s*,\s*(\w+)\s*""".r
-  val weatherProcess = new WeatherProcess(Config("/endpoints.properties"))
+  val weatherProcess = new WeatherProcess(config)
   override val commandHelp = super.commandHelp :+
     ("town,country" -> "name town and country (two-letter code)")
   def next(value: String): State = {
@@ -64,7 +65,7 @@ case class LookupWeather(console: ConsoleInOut)(implicit system: ActorSystem) ex
   }
 }
 
-class JetstreamRepl(console: ConsoleInOut) {
+class JetstreamRepl(console: ConsoleInOut, config: Config = Config.default) {
   import scala.annotation.tailrec
   implicit val system = ActorSystem("weather-system")
 
@@ -76,9 +77,19 @@ class JetstreamRepl(console: ConsoleInOut) {
     case state => inputLoop(state.action())
   }
 
-  def run() = inputLoop(LookupWeather(console))
+  def run() = inputLoop(LookupWeather(console,config))
 }
 
-object Jetstream extends JetstreamRepl(new ConsoleInOut()) {
-  def main(args: Array[String]): Unit = run()
+object Jetstream {
+  def main(args: Array[String]): Unit = {
+    val config = if(args.length > 0) {
+      Config(Map(
+        "weather-api" -> args(0),
+        "weather-app-id" -> "12345")
+      )
+    } else {
+      Config.default
+    }
+    new JetstreamRepl(new ConsoleInOut(),config).run()
+  }
 }
