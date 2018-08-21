@@ -4,9 +4,7 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.model.HttpRequest
 import akka.stream.scaladsl.{Flow, Sink, Source}
 import akka.stream.{ActorMaterializer, ActorMaterializerSettings}
-import argonaut.Parse
 import jetstream.app.{Config, WeatherProcess}
-import jetstream.model.weather.Response
 import jetstream.process.Stages
 import net.jadler.Jadler._
 import net.jadler.Request
@@ -39,15 +37,14 @@ class WeatherApiSpec extends FlatSpec with Matchers with ScalaFutures with Befor
       val badProcess = Source.single(("Dublin","ie")) via stages.buildRequest via badCall runWith Sink.headOption
     }
 
-    whenReady(weather.badProcess, Timeout(2 seconds)) {
+    whenReady(weather.badProcess, Timeout(10 seconds)) {
       case Seq(_) =>
         fail
       case _ =>
         waiter.dismiss
     }
-    waiter.await(timeout(2 seconds), dismissals(1))
+    waiter.await(timeout(10 seconds), dismissals(1))
   }
-
 
   "full process spec" should "work" in {
     val waiter = new Waiter
@@ -73,14 +70,14 @@ class WeatherApiSpec extends FlatSpec with Matchers with ScalaFutures with Befor
 
     val process = Source.single(("Dublin","ie")) via buildRequest via call via accept via parser via extractor runWith Sink.seq
 
-    whenReady(process, Timeout(2 seconds)) {
+    whenReady(process, Timeout(10 seconds)) {
       case Seq(response) =>
         response.wind.toString shouldBe "5.7 kph ?"
         waiter.dismiss
       case Nil =>
         fail
     }
-    waiter.await(timeout(2 seconds), dismissals(1))
+    waiter.await(timeout(10 seconds), dismissals(1))
   }
 
   "Unauthorized error in the service" should "be caught" in {
@@ -98,7 +95,7 @@ class WeatherApiSpec extends FlatSpec with Matchers with ScalaFutures with Befor
       case _ =>
        fail
     }
-    waiter.await(timeout(2 seconds), dismissals(1))
+    waiter.await(timeout(10 seconds), dismissals(1))
   }
 
   "No content responses in the service" should "be fine" in {
@@ -111,13 +108,13 @@ class WeatherApiSpec extends FlatSpec with Matchers with ScalaFutures with Befor
 
     val weather = new WeatherProcess(Config(defaultConfig))
     val process = weather.lookup("Dublin","ie")
-    whenReady(process, Timeout(2 seconds)) {
+    whenReady(process, Timeout(10 seconds)) {
       case Seq(_) =>
         fail
       case Nil =>
         waiter.dismiss
     }
-    waiter.await(timeout(2 seconds), dismissals(1))
+    waiter.await(timeout(10 seconds), dismissals(1))
   }
 
   "4xx errors in the service" should "be caught" in {
@@ -130,13 +127,13 @@ class WeatherApiSpec extends FlatSpec with Matchers with ScalaFutures with Befor
 
     val weather = new WeatherProcess(Config(defaultConfig))
     val process = weather.lookup("Dublin","ie")
-    whenReady(process, Timeout(2 seconds)) {
+    whenReady(process, Timeout(10 seconds)) {
       case Seq(_) =>
         fail
       case Nil =>
         waiter.dismiss
     }
-    waiter.await(timeout(2 seconds), dismissals(1))
+    waiter.await(timeout(10 seconds), dismissals(1))
   }
 
   "An invalid JSON response" should "be caught" in {
@@ -149,13 +146,13 @@ class WeatherApiSpec extends FlatSpec with Matchers with ScalaFutures with Befor
 
     val weather = new WeatherProcess(Config(defaultConfig))
     val process = weather.lookup("Dublin","ie")
-    whenReady(process, Timeout(2 seconds)) {
+    whenReady(process, Timeout(10 seconds)) {
       case Seq(_) =>
         fail
       case Nil =>
         waiter.dismiss
     }
-    waiter.await(timeout(2 seconds), dismissals(1))
+    waiter.await(timeout(10 seconds), dismissals(1))
   }
 
   "An exception in the service" should "be caught" in {
@@ -172,13 +169,13 @@ class WeatherApiSpec extends FlatSpec with Matchers with ScalaFutures with Befor
 
     val weather = new WeatherProcess(Config(defaultConfig))
     val process = weather.lookup("Dublin","ie")
-    whenReady(process, Timeout(2 seconds)) {
+    whenReady(process, Timeout(10 seconds)) {
       case Seq(_) =>
         fail
       case Nil =>
         waiter.dismiss
     }
-    waiter.await(timeout(2 seconds), dismissals(1))
+    waiter.await(timeout(10 seconds), dismissals(1))
   }
 
   "A runtime exception in the service" should "be caught" in {
@@ -195,13 +192,13 @@ class WeatherApiSpec extends FlatSpec with Matchers with ScalaFutures with Befor
 
     val weather = new WeatherProcess(Config(defaultConfig))
     val process = weather.lookup("Dublin","ie")
-    whenReady(process, Timeout(2 seconds)) {
+    whenReady(process, Timeout(10 seconds)) {
       case Seq(_) =>
         fail
       case Nil =>
         waiter.dismiss
     }
-    waiter.await(timeout(2 seconds), dismissals(1))
+    waiter.await(timeout(10 seconds), dismissals(1))
   }
 
   override def beforeAll = {

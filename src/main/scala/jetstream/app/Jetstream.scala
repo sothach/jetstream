@@ -45,7 +45,8 @@ case class DisplayHelp(parent: InputState) extends State {
   }
 }
 
-case class LookupWeather(console: ConsoleInOut, config: Config)(implicit system: ActorSystem) extends InputState {
+case class LookupWeather(console: ConsoleInOut, config: Config)
+                        (implicit system: ActorSystem) extends InputState {
   val prompt = s"Please enter town/country: "
   val placePattern = """\s*(\w+)\s*,\s*(\w+)\s*""".r
   val weatherProcess = new WeatherProcess(config)

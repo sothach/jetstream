@@ -12,7 +12,7 @@ in a systematic manner.
 The target language is Scala version 2.12, and uses the build tool sbt 1.2.1.
 Clone this repository in a fresh directory:
 ```git
-% git clone git@bitbucket.org:royp/bluebus.git
+% git clone git@bitbucket.org:royp/jetstream.git
 ```
 Compile the example with the following command:
 ```sbtshell
