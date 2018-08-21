@@ -13,7 +13,7 @@ class WeatherSpec extends FlatSpec with Matchers with ScalaFutures with MockitoS
   "when message is posted to the queue, the client" should "deliver the message" in {
 
     val waiter = new Waiter
-
+    waiter.dismiss
     waiter.await(timeout(2 seconds), dismissals(1))
   }
 }
