@@ -16,7 +16,6 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.concurrent.Waiters._
 import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
 
-import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.Failure
 
@@ -28,42 +27,6 @@ class WeatherApiSpec extends FlatSpec with Matchers with ScalaFutures with Befor
   def defaultConfig = Map(
     Config.WeatherURL -> s"http://localhost:${port()}/data/2.5/weather",
     Config.WeatherAppId -> "12345")
-
-  "when the weather API is queried, the request & call stages" should "return the weather" in {
-    val waiter = new Waiter
-    val config = Map(Config.WeatherURL -> s"http://localhost:$port/data/2.5/weather", Config.WeatherAppId -> "")
-    val stages = new Stages(Config(config))
-    resetJadler()
-    val expectedJson =
-      """{"coord":{"lon":-6.26,"lat":53.35},
-         |"weather":[{"id":300,"main":"Drizzle","description":"light intensity drizzle","icon":"09d"}],
-         |"base":"stations","main":{"temp":18,"pressure":1016,"humidity":88,"temp_min":18,"temp_max":18},
-         |"visibility":10000,"wind":{"speed":5.7,"deg":280},"clouds":{"all":75},"dt":1534676400,
-         |"sys":{"type":1,"id":5237,"message":0.0052,"country":"IE","sunrise":1534655551,"sunset":1534707803},
-         |"id":2964574,"name":"Dublin","cod":200}""".stripMargin
-    onRequest()
-      .havingMethodEqualTo("GET")
-      .havingPathEqualTo("/data/2.5/weather")
-      .respond().withBody(expectedJson).withStatus(200)
-      .thenRespond().withStatus(404)
-
-    val process = Source.single(("Dublin","ie")) via stages.buildRequest via stages.call runWith Sink.headOption
-
-    whenReady(process, Timeout(2 seconds)) {
-      case Some(response) =>
-        import jetstream.conversions.WeatherJsonProtocol._
-        val payload = Await.result(response.entity.toStrict(3 seconds) map { payload =>
-          Parse.decode[Response](payload.data.utf8String)
-        }, 2 seconds)
-        payload.isRight shouldBe true
-        payload.right.get.toString shouldBe "Current Weather in Dublin: light intensity drizzle 18.0c wind: 5.7 kph W IE daylight: 05:12:31 to 19:43:23"
-        waiter.dismiss
-      case None =>
-        fail
-    }
-    waiter.await(timeout(2 seconds), dismissals(1))
-  }
-
 
   "when the weather API call fails, the error" should "be handled correctly" in {
     val waiter = new Waiter

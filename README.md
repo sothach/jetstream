@@ -54,8 +54,9 @@ On success, extracts the weather domain objects and returns, or logs the error, 
 |----------------|----------|-------------------|
 | `akka-stream`  |  2.5.14  | stream processing |
 | `akka-http`    |  10.1.4  | http & webservice |
-| `argonaut`     |  6.2.2   | JSON processing   |
-| `README.md`    |  0.54    | logging framework |
+| `argonaut`     |   6.2.2  | JSON processing   |
+| `airframe-log` |    0.54  | logging framework |
+| `scopt`        |   3.7.0  | option processing |
 
 ## Configuration
 The weather API end-point and API key are read from 

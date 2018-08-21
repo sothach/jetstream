@@ -82,10 +82,6 @@ class JetstreamRepl(console: ConsoleInOut, config: Config) {
 
 object Jetstream {
   def main(args: Array[String]): Unit = {
-    new JetstreamRepl(new ConsoleInOut(),
-      Options.commandLine()
-        .parse(args, Config.default)
-        .getOrElse(Config.default)
-    ).run()
+    new JetstreamRepl(new ConsoleInOut(), Config.commandLine(args)).run()
   }
 }
