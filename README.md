@@ -1,7 +1,7 @@
 # Akka-streams process example
 ### Status
 [![Build Status](https://travis-ci.org/sothach/jetstream.png)](https://travis-ci.org/sothach/jetstream)
-[![Coverage Status](https://coveralls.io/repos/github/sothach/jetstream/badge.svg)](https://coveralls.io/github/sothach/jetstream)
+[![Coverage Status](https://coveralls.io/repos/github/sothach/jetstream/badge.svg?branch=master)](https://coveralls.io/github/sothach/jetstream?branch=master)
 
 ## Weather report
 This app is an example of using Akka-streams, Akka-http to query a web-service, and process the results.
