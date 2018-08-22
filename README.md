@@ -23,7 +23,13 @@ business requirements.
 An interactive command-line interface is provided to exercise the process flow, prompting the user for a location 
 whose weather should be queried, e.g., `Munich, de`, calling the weather process and displaying the current weather
 conditions at that location.
-
+```sbtshel
+% sbt run
+Please enter town/country: Skibbereen,IE
+town=skibbereen country=ie
+Current Weather in Skibbereen: broken clouds 16.0c wind: 5.7 kph NNW IE daylight: 05:34:13 to 19:44:23
+Please enter town/country: q
+```
 The logical process flow to query the weather at specified locations and parse the response is:
 ```
               +--------------+    +------+    +--------+    +--------+    +-----------+ 
