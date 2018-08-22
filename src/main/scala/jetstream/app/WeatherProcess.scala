@@ -4,15 +4,16 @@ import akka.actor.ActorSystem
 import akka.stream.Supervision.{Decider, Resume, Stop}
 import akka.stream.scaladsl.{Sink, Source}
 import akka.stream.{ActorMaterializer, ActorMaterializerSettings}
+import com.typesafe.scalalogging.Logger
 import jetstream.process.Stages
-import wvlet.log.LogSupport
 
 import scala.collection.immutable
 
-class WeatherProcess(config: Config)(implicit val system: ActorSystem) extends LogSupport {
+class WeatherProcess(config: Config)(implicit val system: ActorSystem) {
+  val logger = Logger(this.getClass)
   val decider: Decider = {
     case ex: SecurityException =>
-      warn(s"WeatherProcess stopping because of ${ex.getClass.getCanonicalName} (${ex.getMessage})")
+      logger.warn(s"WeatherProcess stopping because of ${ex.getClass.getCanonicalName} (${ex.getMessage})")
       Stop
     case ex =>
       logger.warn(s"WeatherProcess resuming because of ${ex.getClass.getCanonicalName} (${ex.getMessage})")
@@ -28,8 +29,8 @@ class WeatherProcess(config: Config)(implicit val system: ActorSystem) extends L
   import stages._
 
   val source = Source(immutable.Seq("Dublin,ie","London,uk","Oxford,uk","Maynooth,ie","Munich,de"))
-
+  val process =  buildRequest via call via accept via parser via extractor
   def lookup(town: String, country: String) =
-    Source.single((town,country)) via buildRequest via call via accept via parser via extractor runWith Sink.seq
+    Source.single((town,country)) via process runWith Sink.seq
 
 }

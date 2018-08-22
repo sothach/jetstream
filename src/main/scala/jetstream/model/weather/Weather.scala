@@ -30,10 +30,10 @@ case class Sys(`type`: Option[Int], id: Option[Int], message: Double, country: S
   }
 }
 
-case class Response(base: String, visibility: Option[Int], dt: Long,
-                    id: Long, name: String, cod: Int,
-                    coord: Coordinate, weather: List[Weather], main: Main,
-                    wind: Wind, clouds: Clouds, sys: Sys) {
+case class Report(base: String, visibility: Option[Int], dt: Long,
+                  id: Long, name: String, cod: Int,
+                  coord: Coordinate, weather: List[Weather], main: Main,
+                  wind: Wind, clouds: Clouds, sys: Sys) {
   override def toString = {
     val w = weather.head
     s"Current Weather in $name: ${w.description} ${main.temp}c wind: $wind $sys"

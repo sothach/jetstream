@@ -7,7 +7,68 @@
 This app is an example of using Akka-streams, Akka-http to query a web-service, and process the results.
 The objective is to demonstrate how Akka-streams provides an easy-to-read DSL, allowing business processes to be 
 coded very much as they were white-boarded, but at the same time, taking care to manage concurrency and error handling
-in a systematic manner, making yhe application reliable and resilient
+in a systematic manner, making the application reliable and resilient.
+
+The goal is to demonstrate using this framework to produce work-a-day applications, as a 21st century COBOL. 
+Scala is a multi-faceted language, providing the tools needed for modern development: it's type system allows us to
+readily define our domain concepts, in a domain-driven manner, whilst it's functional properties encourage a succinct
+and powerful style of defining the logic, without becoming lost in syntax.
+
+Akka builds on this, with a simple and scalable model for asynchronous programming, which is exploited by Akka-streams,
+further reducing boilerplate code and helping us application developers to focus on creating elegant solutions to the
+business requirements.
+
+## App design
+An interactive command-line interface is provided to exercise the process flow, prompting the user for a location 
+whose weather should be queried, e.g., `Munich, de`, calling the weather process and displaying the current weather
+conditions at that location.
+
+The logical process flow to query the weather at specified locations and parse the response is:
+```
+            +--------------+    +------+    +--------+    +--------+    +-----------+ 
+location => | buildRequest | -> | call | -> | accept | -> | parser | -> | extractor | => weather            
+            +--------------+    +------+    +--------+    +--------+    +-----------+  
+                                                                              |
+                                                                              v
+                                                                        +-----------+
+                                                                        | errorSink | => errors
+                                                                        +-----------+
+```
+and in code:
+```scala
+val process = buildRequest via call via accept via parser via extractor
+
+def lookup(town: String, country: String): Future[Seq[Report]] 
+          = Source.single((town,country)) via process runWith Sink.seq
+```
+The value `process` is a blue-print for an asynchronous process that, provided a source or one or more location
+tuples, will query the weather API for current weather conditions and render the results into domain objects,
+as the process's output.
+
+The sample `lookup` method connects this process to an input source, and instantiates the process blueprint,
+returning the output as a sequence of weather reports.
+
+The weather process flow can be used as-is, or combined into a higher-level flow, to further process the results,
+such as saving to a data store, sending to subscribers, etc.
+
+### Processing Stages
+#### `buildRequest`
+As input to the stage, receives town & country names, building the `HttpRequest` object, from the configured URI and 
+requested location(s)
+#### `call`
+Asynchronously executes the HTTP request supplied as its input, creating the HTTP response.  
+Depending upon the parallelism setting, may perform multiple calls in parallel (see property `stream-width`)
+
+This stage uses a configurable dispatcher, should a different execution context be deemed appropriate, 
+see discussion [here](http://doc.akka.io/docs/akka/current/dispatchers.html)
+#### `accept`
+Interpret the HTTP response code, unpacking the payload.  This stage must ensure that any response entity is 
+fully consumed, preventing back-pressure on the underlying TCP connection
+#### `parser`
+Parse the JSON response received, building the domain objects
+#### `extractor`
+The extractor stage maps successful results to the values returned by the process, and diverts any errors to be logged
+
 ### Prerequisites 
 The target language is Scala version 2.12, and uses the build tool sbt 1.2.1.
 Clone this repository in a fresh directory:
@@ -22,45 +83,15 @@ Compile the example with the following command:
 ```
 The only explicit library dependency outside of the Scala language environment is Databinder dispatch version 0.13.4
 
-## App design
-
-The logical process flow to query the weather at specified locations and parse the response is:
-```
- +--------------+    +------+    +--------+    +--------+    +-----------+ 
- | buildRequest | -> | call | -> | accept | -> | parser | -> | extractor |             
- +--------------+    +------+    +--------+    +--------+    +-----------+  
-```
-and in code:
-```scala
-def lookup(town: String, country: String) =
- Source.single((town,country)) via buildRequest via call via accept via parser via diversion runWith Sink.seq
-```
-### Processing Stages
-#### `buildRequest`
-As input to the stage, receives town & country names, building the `HttpRequest` object, from the configured URI and 
-requested location(s)
-#### `call`
-Asynchronously executes the HTTP request supplied as its input, creating the HTTP response.  
-Depending upon the parallelism setting, may perform multiple calls in parallel (see property `stream-width`)
-This stage is configured with a configurable dispatcher, should a different execution context be deemed appropriate, 
-see discussion [here](doc.akka.io/docs/akka/current/dispatchers.html)
-#### `accept`
-Interpret the HTTP response code, unpacking the payload.  This stage must ensure that any response entity is consumed,
-preventing back-pressure on the underlying TCP connection
-#### `parser`
-Parse the JSON response received, building the domain objects
-#### `extractor`
-On success, extracts the weather domain objects and returns, or logs the error, if call failed
-
 ## Dependencies
 
-| library        | version  | purpose           |
-|----------------|----------|-------------------|
-| `akka-stream`  |  2.5.14  | stream processing |
-| `akka-http`    |  10.1.4  | http & webservice |
-| `argonaut`     |   6.2.2  | JSON processing   |
-| `airframe-log` |    0.54  | logging framework |
-| `scopt`        |   3.7.0  | option processing |
+| library          | version  | purpose           |
+|------------------|----------|-------------------|
+| `akka-stream`    |  2.5.14  | stream processing |
+| `akka-http`      |  10.1.4  | http & webservice |
+| `argonaut`       |   6.2.2  | JSON processing   |
+| `scala-loggging` |   3.9.0  | logging framework |
+| `scopt`          |   3.7.0  | option processing |
 
 ## Configuration
 The weather API end-point and API key are read from 
@@ -95,4 +126,4 @@ To create the report, rom the command line:
 
 (c) 2018 This project is licensed under Creative Commons License
 
-[Attribution 4.0 International (CC BY 4.0)](file:LICENSE.md)
+[Attribution 4.0 International (CC BY 4.0)](LICENSE.md)

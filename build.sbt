@@ -10,8 +10,9 @@ libraryDependencies ++= Seq(
   "org.slf4j" % "slf4j-jdk14" % "1.7.25",
   "com.typesafe.akka" %% "akka-stream" % akkaVersion,
   "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
+  "com.typesafe.scala-logging" %% "scala-logging" % "3.9.0",
+  "ch.qos.logback" % "logback-classic" % "1.2.3",
   "io.argonaut" %% "argonaut" % "6.2.2",
-  "org.wvlet.airframe" %% "airframe-log" % "0.54",
   "com.github.scopt" %% "scopt" % "3.7.0",
 
   "org.scalatest" %% "scalatest" % "3.0.5" % Test,

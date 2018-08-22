@@ -15,12 +15,12 @@ object WeatherJsonProtocol {
       casecodec4(Weather.apply, Weather.unapply)("id", "main", "description", "icon")
     implicit def formatWind =
       casecodec2(Wind.apply, Wind.unapply)("speed", "deg")
-    implicit def formatCloudsr =
+    implicit def formatClouds =
       casecodec1(Clouds.apply, Clouds.unapply)("all")
     implicit def formatSys =
       casecodec6(Sys.apply, Sys.unapply)("type", "id", "message", "country", "sunrise", "sunset")
     implicit def formatResponse =
-      casecodec12(Response.apply, Response.unapply)(
+      casecodec12(Report.apply, Report.unapply)(
         "base", "visibility", "dt", "id",
         "name", "cod", "coord", "weather",
         "main", "wind", "clouds", "sys")

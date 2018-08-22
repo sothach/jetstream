@@ -14,6 +14,7 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.concurrent.Waiters._
 import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
 
+import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.Failure
 
@@ -30,11 +31,12 @@ class WeatherApiSpec extends FlatSpec with Matchers with ScalaFutures with Befor
     val waiter = new Waiter
     val config = Config(Map(Config.WeatherURLKey -> s"http://localhost:$port/data/2.5/weather", Config.WeatherAppIdKey -> ""))
 
-    val weather = new WeatherProcess(config) {
+    val weather: WeatherProcess{def badProcess: Future[Option[Nothing]]} = new WeatherProcess(config) {
       val badCall = Flow[HttpRequest].mapAsync(parallelism=1) { _ =>
         throw new RuntimeException("call failed")
       }
-      val badProcess = Source.single(("Dublin","ie")) via stages.buildRequest via badCall runWith Sink.headOption
+      val badProcess =
+        Source.single(("Dublin","ie")) via stages.buildRequest via badCall runWith Sink.headOption
     }
 
     whenReady(weather.badProcess, Timeout(10 seconds)) {
