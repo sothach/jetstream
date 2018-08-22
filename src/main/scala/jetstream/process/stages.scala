@@ -5,7 +5,7 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.Uri.Query
 import akka.http.scaladsl.model.headers.Host
-import akka.stream.ActorMaterializer
+import akka.stream.{ActorAttributes, ActorMaterializer}
 import akka.stream.scaladsl.{Flow, Sink}
 import argonaut.Parse
 import jetstream.app.Config
@@ -29,14 +29,14 @@ class Stages(config: Config)(
     HttpRequest(uri = context, method = HttpMethods.GET)
       .withEffectiveUri(securedConnection = weatherUrl.effectivePort == 443,
         defaultHostHeader = Host(weatherUrl.authority.host))
-  }.log("buildRequest")
+  }
 
-  val call = Flow[HttpRequest].mapAsync(parallelism=1) { request =>
+  val call = Flow[HttpRequest].mapAsync(parallelism=streamWidth) { request =>
     debug(s"Request: $request")
     Http().singleRequest(request)
-  }.log("call")
+  }.withAttributes(ActorAttributes.dispatcher(apiDispatcher))
 
-  val accept = Flow[HttpResponse].mapAsync(parallelism = 1) {
+  val accept = Flow[HttpResponse].mapAsync(parallelism = streamWidth) {
     case response if response.status == StatusCodes.NoContent =>
       warn("(no content)")
       response.discardEntityBytes().future() map (_ => "")
@@ -56,9 +56,7 @@ class Stages(config: Config)(
 
   }.collect { case s if s.nonEmpty => s }
 
-  val parser = Flow[String].map { response =>
-    Parse.decodeEither[Response](response)
-  }
+  val parser = Flow[String].map(Parse.decodeEither[Response])
 
   val errorSink = Sink.foreach[Either[String,Response]] { error =>
     warn(s"Error: ${error.left.get}")

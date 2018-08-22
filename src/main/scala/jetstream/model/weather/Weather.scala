@@ -22,7 +22,7 @@ case class Wind(speed: Double, deg: Option[Int]) {
   }
 }
 case class Clouds(all: Int)
-case class Sys(`type`: Int, id: Int, message: Double, country: String, sunrise: Long, sunset: Long) {
+case class Sys(`type`: Option[Int], id: Option[Int], message: Double, country: String, sunrise: Long, sunset: Long) {
   override def toString = {
     val sunup = LocalDateTime.ofEpochSecond(sunrise,0,ZoneOffset.UTC).toLocalTime
     val sundown = LocalDateTime.ofEpochSecond(sunset,0,ZoneOffset.UTC).toLocalTime
@@ -30,7 +30,7 @@ case class Sys(`type`: Int, id: Int, message: Double, country: String, sunrise: 
   }
 }
 
-case class Response(base: String, visibility: Int, dt: Long,
+case class Response(base: String, visibility: Option[Int], dt: Long,
                     id: Long, name: String, cod: Int,
                     coord: Coordinate, weather: List[Weather], main: Main,
                     wind: Wind, clouds: Clouds, sys: Sys) {

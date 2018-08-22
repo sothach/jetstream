@@ -7,7 +7,7 @@
 This app is an example of using Akka-streams, Akka-http to query a web-service, and process the results.
 The objective is to demonstrate how Akka-streams provides an easy-to-read DSL, allowing business processes to be 
 coded very much as they were white-boarded, but at the same time, taking care to manage concurrency and error handling
-in a systematic manner.
+in a systematic manner, making yhe application reliable and resilient
 ### Prerequisites 
 The target language is Scala version 2.12, and uses the build tool sbt 1.2.1.
 Clone this repository in a fresh directory:
@@ -37,12 +37,16 @@ def lookup(town: String, country: String) =
 ```
 ### Processing Stages
 #### `buildRequest`
-As input to the stage, receives otn & country names, building the HttpRequest object, from the configured URI and requested location(s)
+As input to the stage, receives town & country names, building the `HttpRequest` object, from the configured URI and 
+requested location(s)
 #### `call`
-Asynchronously executes the HTTP request supplied as its input, creating the HTTP response.  Depending upon the parallelism setting,
-may perform multiple calls in parallel
+Asynchronously executes the HTTP request supplied as its input, creating the HTTP response.  
+Depending upon the parallelism setting, may perform multiple calls in parallel (see property `stream-width`)
+This stage is configured with a configurable dispatcher, should a different execution context be deemed appropriate, 
+see discussion [here](doc.akka.io/docs/akka/current/dispatchers.html)
 #### `accept`
-Interpret the HTTP response code, unpacking the payload
+Interpret the HTTP response code, unpacking the payload.  This stage must ensure that any response entity is consumed,
+preventing back-pressure on the underlying TCP connection
 #### `parser`
 Parse the JSON response received, building the domain objects
 #### `extractor`
@@ -67,8 +71,6 @@ Obtain the API key from [OpenWeatherMap](https://openweathermap.org/appid) and c
 weather-app-id=eabb12404d141ed6e8ee2193688178cb
 weather-api=http://api.openweathermap.org/data/2.5/weather
 ```
-
-
 
 ## Testing
 ### Running the tests

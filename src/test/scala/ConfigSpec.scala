@@ -18,7 +18,7 @@ class ConfigSpec extends FlatSpec with Matchers {
 
   "The configuration" should "fail requirement to contain value for 'weather-app-id'" in {
     the[IllegalArgumentException] thrownBy {
-      Config(Map(Config.WeatherURL -> "http://localhost/weather"))
+      Config(Map(Config.WeatherURLKey -> "http://localhost/weather"))
     } should have message "requirement failed: properties must contain value for 'weather-app-id'"
   }
 

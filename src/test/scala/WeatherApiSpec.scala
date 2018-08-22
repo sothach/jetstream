@@ -23,12 +23,12 @@ class WeatherApiSpec extends FlatSpec with Matchers with ScalaFutures with Befor
   implicit val ec = system.dispatcher
 
   def defaultConfig = Map(
-    Config.WeatherURL -> s"http://localhost:${port()}/data/2.5/weather",
-    Config.WeatherAppId -> "12345")
+    Config.WeatherURLKey -> s"http://localhost:${port()}/data/2.5/weather",
+    Config.WeatherAppIdKey -> "12345")
 
   "when the weather API call fails, the error" should "be handled correctly" in {
     val waiter = new Waiter
-    val config = Config(Map(Config.WeatherURL -> s"http://localhost:$port/data/2.5/weather", Config.WeatherAppId -> ""))
+    val config = Config(Map(Config.WeatherURLKey -> s"http://localhost:$port/data/2.5/weather", Config.WeatherAppIdKey -> ""))
 
     val weather = new WeatherProcess(config) {
       val badCall = Flow[HttpRequest].mapAsync(parallelism=1) { _ =>
@@ -48,7 +48,7 @@ class WeatherApiSpec extends FlatSpec with Matchers with ScalaFutures with Befor
 
   "full process spec" should "work" in {
     val waiter = new Waiter
-    val config = Map(Config.WeatherURL -> s"http://localhost:$port/data/2.5/weather", Config.WeatherAppId -> "")
+    val config = Map(Config.WeatherURLKey -> s"http://localhost:$port/data/2.5/weather", Config.WeatherAppIdKey -> "")
     val stages = new Stages(Config(config))
     import stages._
     resetJadler()
