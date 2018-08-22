@@ -4,8 +4,8 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.model.HttpRequest
 import akka.stream.scaladsl.{Flow, Sink, Source}
 import akka.stream.{ActorMaterializer, ActorMaterializerSettings}
-import jetstream.app.{Config, WeatherProcess}
-import jetstream.process.Stages
+import jetstream.app.Config
+import jetstream.process.{Stages, WeatherProcess}
 import net.jadler.Jadler._
 import net.jadler.Request
 import net.jadler.stubbing.StubResponse
@@ -48,7 +48,7 @@ class WeatherApiSpec extends FlatSpec with Matchers with ScalaFutures with Befor
     waiter.await(timeout(10 seconds), dismissals(1))
   }
 
-  "full process spec" should "work" in {
+  "when all the process stages are concaternated, the report" should "be returned" in {
     val waiter = new Waiter
     val config = Map(Config.WeatherURLKey -> s"http://localhost:$port/data/2.5/weather", Config.WeatherAppIdKey -> "")
     val stages = new Stages(Config(config))

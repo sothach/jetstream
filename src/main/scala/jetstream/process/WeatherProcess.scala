@@ -1,11 +1,11 @@
-package jetstream.app
+package jetstream.process
 
 import akka.actor.ActorSystem
 import akka.stream.Supervision.{Decider, Resume, Stop}
 import akka.stream.scaladsl.{Sink, Source}
 import akka.stream.{ActorMaterializer, ActorMaterializerSettings}
 import com.typesafe.scalalogging.Logger
-import jetstream.process.Stages
+import jetstream.app.Config
 
 import scala.collection.immutable
 

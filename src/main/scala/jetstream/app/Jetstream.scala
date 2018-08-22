@@ -1,6 +1,7 @@
 package jetstream.app
 
 import akka.actor.ActorSystem
+import jetstream.process.WeatherProcess
 
 import scala.concurrent.Await
 import scala.concurrent.duration._

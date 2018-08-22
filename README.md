@@ -4,12 +4,13 @@
 [![Coverage Status](https://coveralls.io/repos/github/sothach/jetstream/badge.svg?branch=master)](https://coveralls.io/github/sothach/jetstream?branch=master)
 
 ## Weather report
-This app is an example of using Akka-streams, Akka-http to query a web-service, and process the results.
-The objective is to demonstrate how Akka-streams provides an easy-to-read DSL, allowing business processes to be 
+This app is an example of using Akka-streams, Akka-http to query a web-service, and to process the results.
+It demonstrates how Akka-streams provides an easy-to-read DSL, allowing business processes to be 
 coded very much as they were white-boarded, but at the same time, taking care to manage concurrency and error handling
 in a systematic manner, making the application reliable and resilient.
 
-The goal is to demonstrate using this framework to produce work-a-day applications, as a 21st century COBOL. 
+Scala and Akka are a powerful framework for producing work-a-day applications, as a 21st century COBOL. 
+
 Scala is a multi-faceted language, providing the tools needed for modern development: it's type system allows us to
 readily define our domain concepts, in a domain-driven manner, whilst it's functional properties encourage a succinct
 and powerful style of defining the logic, without becoming lost in syntax.
@@ -25,16 +26,16 @@ conditions at that location.
 
 The logical process flow to query the weather at specified locations and parse the response is:
 ```
-            +--------------+    +------+    +--------+    +--------+    +-----------+ 
-location => | buildRequest | -> | call | -> | accept | -> | parser | -> | extractor | => weather            
-            +--------------+    +------+    +--------+    +--------+    +-----------+  
-                                                                              |
-                                                                              v
-                                                                        +-----------+
-                                                                        | errorSink | => errors
-                                                                        +-----------+
+              +--------------+    +------+    +--------+    +--------+    +-----------+ 
+(location) => | buildRequest | -> | call | -> | accept | -> | parser | -> | extractor | => (weather)           
+              +--------------+    +------+    +--------+    +--------+    +-----------+  
+                                                                                |
+                                                                                v
+                                                                          +-----------+
+                                                                          | errorSink | => (errors)
+                                                                          +-----------+
 ```
-and in code:
+and the code is a direct representation of this process flow:
 ```scala
 val process = buildRequest via call via accept via parser via extractor
 
@@ -48,18 +49,18 @@ as the process's output.
 The sample `lookup` method connects this process to an input source, and instantiates the process blueprint,
 returning the output as a sequence of weather reports.
 
-The weather process flow can be used as-is, or combined into a higher-level flow, to further process the results,
+The weather process flow can be used as-is, or combined with higher-level flows, to further process the results,
 such as saving to a data store, sending to subscribers, etc.
 
 ### Processing Stages
 #### `buildRequest`
-As input to the stage, receives town & country names, building the `HttpRequest` object, from the configured URI and 
-requested location(s)
+As input to the stage, receives town & country names as tuple, building the `HttpRequest` object, from the configured URI and 
+requested location(s) as its output
 #### `call`
 Asynchronously executes the HTTP request supplied as its input, creating the HTTP response.  
 Depending upon the parallelism setting, may perform multiple calls in parallel (see property `stream-width`)
 
-This stage uses a configurable dispatcher, should a different execution context be deemed appropriate, 
+This stage uses a configurable dispatcher, (property `api-dispatcher`) should a different execution context be deemed appropriate, 
 see discussion [here](http://doc.akka.io/docs/akka/current/dispatchers.html)
 #### `accept`
 Interpret the HTTP response code, unpacking the payload.  This stage must ensure that any response entity is 
