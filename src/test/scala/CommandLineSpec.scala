@@ -12,7 +12,7 @@ class CommandLineSpec extends FlatSpec with Matchers {
     val expected =
       """Please enter town/country: q:	exit
         |?:	display this help
-        |town,country:	name town and country (two-letter code)
+        |town,country:	name town and country (ISO3166 two-letter code)
         |Please enter town/country: """.stripMargin
     val in = new ByteArrayInputStream(commands.getBytes())
     val out = new ByteArrayOutputStream
@@ -42,7 +42,7 @@ class CommandLineSpec extends FlatSpec with Matchers {
         |"base":"stations","main":{"temp":18,"pressure":1016,"humidity":88,"temp_min":18,"temp_max":18},
         |"visibility":10000,"wind":{"speed":5.7,"deg":280},"clouds":{"all":75},"dt":1534676400,
         |"sys":{"type":1,"id":5237,"message":0.0052,"country":"IE","sunrise":1534655551,"sunset":1534707803},
-        |"id":2964574,"name":"Dublin","cod":200}""".stripMargin
+        |"id":2964574,"name":"Maynooth","cod":200}""".stripMargin
     initJadler()
     onRequest()
       .havingMethodEqualTo("GET")
@@ -50,8 +50,27 @@ class CommandLineSpec extends FlatSpec with Matchers {
       .respond().withBody(expectedJson).withStatus(200)
 
     val commands = "Maynooth,ie\nq\n".getBytes
-    val expected = """Please enter town/country: town=maynooth country=ie
-                     |Current Weather in Dublin: light intensity drizzle 18.0c wind: 5.7 kph W IE daylight: 05:12:31 to 19:43:23
+    val expected = """Please enter town/country: Current Weather in Maynooth: light intensity drizzle 18.0c wind: 5.7 kph W IE daylight: 05:12:31 to 19:43:23
+                    |Please enter town/country: """.stripMargin
+    System.setIn(new ByteArrayInputStream(commands))
+    val out = new ByteArrayOutputStream
+    System.setOut(new PrintStream(out))
+
+    Jetstream.main(Array(s"-w=http://localhost:${port()}/data/2.5/weather"))
+    closeJadler()
+    out.toString shouldBe expected
+  }
+
+  "When an invalid country code is provided, the Repl" should "report the error" in {
+    import java.io.{ByteArrayInputStream, ByteArrayOutputStream, PrintStream}
+    initJadler()
+    onRequest()
+      .havingMethodEqualTo("GET")
+      .havingPathEqualTo("/data/2.5/weather")
+      .respond().withStatus(404)
+
+    val commands = "Maynooth,XX\nq\n".getBytes
+    val expected = """Please enter town/country: input error: [maynooth,xx]: enter q or town/country
                      |Please enter town/country: """.stripMargin
     System.setIn(new ByteArrayInputStream(commands))
     val out = new ByteArrayOutputStream

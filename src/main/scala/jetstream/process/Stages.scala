@@ -33,13 +33,11 @@ class Stages(config: Config)(
   }
 
   val call = Flow[HttpRequest].mapAsync(parallelism=streamWidth) { request =>
-    logger.debug(s"Request: $request")
     Http().singleRequest(request)
   }.withAttributes(ActorAttributes.dispatcher(apiDispatcher))
 
   val accept = Flow[HttpResponse].mapAsync(parallelism = streamWidth) {
     case response if response.status == StatusCodes.NoContent =>
-      logger.warn("(no content)")
       response.discardEntityBytes().future() map (_ => "")
 
     case response if response.status == StatusCodes.Unauthorized =>
@@ -52,7 +50,6 @@ class Stages(config: Config)(
         value.data.utf8String
       }
     case response =>
-      logger.warn(s"(non-success: $response)")
       response.discardEntityBytes().future() map (_ => "")
 
   }.collect { case s if s.nonEmpty => s }

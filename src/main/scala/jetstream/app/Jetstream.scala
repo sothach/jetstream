@@ -1,5 +1,7 @@
 package jetstream.app
 
+import java.util.Locale
+
 import akka.actor.ActorSystem
 import jetstream.process.WeatherProcess
 
@@ -49,16 +51,18 @@ case class DisplayHelp(parent: InputState) extends State {
 case class LookupWeather(console: ConsoleInOut, config: Config)
                         (implicit system: ActorSystem) extends InputState {
   val prompt = s"Please enter town/country: "
-  val placePattern = """\s*(\w+)\s*,\s*(\w+)\s*""".r
+  val placePattern = """\s*([\w\s]+)\s*,\s*(\w+)\s*""".r
+  val isoCodes = Locale.getISOCountries().toSet
   val weatherProcess = new WeatherProcess(config)
   override val commandHelp = super.commandHelp :+
-    ("town,country" -> "name town and country (two-letter code)")
+    ("town,country" -> "name town and country (ISO3166 two-letter code)")
   def next(value: String): State = {
     value match {
-      case placePattern(town,country) =>
-        console.print(s"town=$town country=$country\n")
-        val result = Await.result(weatherProcess.lookup(town,country), 10 seconds)
-        result foreach (r => console.print(s"$r\n"))
+      case placePattern(town,country) if isoCodes.contains(country.toUpperCase) =>
+        Await.result(weatherProcess.lookup(town,country), 10 seconds) match {
+          case reports =>
+            reports foreach (r => console.print(s"$r\n"))
+        }
         this
       case error =>
         onError(s"[$error]: enter $exit or town/country")
