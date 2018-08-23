@@ -67,8 +67,6 @@ Interpret the HTTP response code, unpacking the payload.  This stage must ensure
 fully consumed, preventing back-pressure on the underlying TCP connection
 #### `parser`
 Parse the JSON response received, building the domain objects
-#### `extractor`
-The extractor stage maps successful results to the values returned by the process, and diverts any errors to be logged
 
 ### Prerequisites 
 The target language is Scala version 2.12, and uses the build tool sbt 1.2.1.
