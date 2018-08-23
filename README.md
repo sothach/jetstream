@@ -26,26 +26,20 @@ conditions at that location.
 ```sbtshel
 % sbt run
 Please enter town/country: Skibbereen,IE
-town=skibbereen country=ie
 Current Weather in Skibbereen: broken clouds 16.0c wind: 5.7 kph NNW IE daylight: 05:34:13 to 19:44:23
 Please enter town/country: q
 ```
 The logical process flow to query the weather at specified locations and parse the response is:
 ```
-              +--------------+    +------+    +--------+    +--------+    +-----------+ 
-(location) => | buildRequest | -> | call | -> | accept | -> | parser | -> | extractor | => (weather)           
-              +--------------+    +------+    +--------+    +--------+    +-----------+  
-                                                                                |
-                                                                                v
-                                                                          +-----------+
-                                                                          | errorSink | => (errors)
-                                                                          +-----------+
+              +--------------+    +------+    +--------+    +--------+  
+(location) => | buildRequest | -> | call | -> | accept | -> | parser | => (weather report)           
+              +--------------+    +------+    +--------+    +--------+   
 ```
 and the code is a direct representation of this process flow:
 ```scala
-val process = buildRequest via call via accept via parser via extractor
+val process = buildRequest via call via accept via parser
 
-def lookup(town: String, country: String): Future[Seq[Report]] 
+def lookup(town: String, country: String): Future[Seq[, ]] 
           = Source.single((town,country)) via process runWith Sink.seq
 ```
 The value `process` is a blue-print for an asynchronous process that, provided a source or one or more location

@@ -28,8 +28,7 @@ class WeatherProcess(config: Config)(implicit val system: ActorSystem) {
   val stages = new Stages(config)
   import stages._
 
-  val source = Source(immutable.Seq("Dublin,ie","London,uk","Oxford,uk","Maynooth,ie","Munich,de"))
-  val process =  buildRequest via call via accept via parser via extractor
+  val process =  buildRequest via call via accept via parser
   def lookup(town: String, country: String) =
     Source.single((town,country)) via process runWith Sink.seq
 

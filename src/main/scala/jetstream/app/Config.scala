@@ -7,8 +7,12 @@ import scala.io.Source
 case class Config(properties: Properties) {
   require(properties.containsKey(Config.WeatherURLKey),
     s"properties must contain value for '${Config.WeatherURLKey}'")
+  require(Uri(properties.getProperty(Config.WeatherURLKey)).isAbsolute,
+    s"property ${Config.WeatherURLKey} must be a valid URL")
   require(properties.containsKey(Config.WeatherAppIdKey),
     s"properties must contain value for '${Config.WeatherAppIdKey}'")
+  require(properties.getProperty(Config.WeatherAppIdKey).nonEmpty,
+    s"property ${Config.WeatherAppIdKey} must have a value")
   val weatherUrl = Uri(properties.getProperty(Config.WeatherURLKey))
   val weatherApiId = properties.getProperty(Config.WeatherAppIdKey)
   val apiDispatcher = properties.getProperty(Config.ApiDispatcherKey,"akka.actor.api-dispatcher")
@@ -28,6 +32,7 @@ object Config {
     }
     Config(props)
   }
+
   def apply(propertyFile: String): Config = {
     val maybeUrl = Option(getClass.getResource(propertyFile))
     require(maybeUrl.isDefined, s"property file '$propertyFile' must exists and be readable")
@@ -38,6 +43,12 @@ object Config {
     }
     Config(props.get)
   }
+
+  def apply(args: Array[String]): Config =
+    Config.parseOptions()
+      .parse(args, default)
+      .getOrElse(default)
+
   lazy val default = Config("/endpoints.properties")
 
   private def parseOptions() = new scopt.OptionParser[Config]("jetstream") {
@@ -59,10 +70,5 @@ object Config {
            |conditions at a specified location (town, country)
          """.stripMargin)
   }
-
-  def commandLine(args: Array[String]) =
-    Config.parseOptions()
-      .parse(args, default)
-      .getOrElse(default)
 
 }

@@ -22,7 +22,7 @@ class ServiceSpec extends FlatSpec with Matchers  with ScalaFutures with BeforeA
 
   "Calling the streaming service " should "return a sequence of results" in {
     val waiter = new Waiter
-    val config = Config(Map(Config.WeatherURLKey -> s"http://localhost:$port/data/2.5/weather", Config.WeatherAppIdKey -> ""))
+    val config = Config(Map(Config.WeatherURLKey -> s"http://localhost:$port/data/2.5/weather", Config.WeatherAppIdKey -> "12345"))
     val weatherProcess = new WeatherProcess(config)
     resetJadler()
     onRequest()
@@ -30,7 +30,7 @@ class ServiceSpec extends FlatSpec with Matchers  with ScalaFutures with BeforeA
       .havingPathEqualTo("/data/2.5/weather")
       .respond().withBody(nextResponse()).withStatus(200)
 
-    val testProcess: Future[Seq[Report]] = Source(testLocations) via weatherProcess.process runWith Sink.seq
+    val testProcess: Future[Seq[Either[String,Report]]] = Source(testLocations) via weatherProcess.process runWith Sink.seq
 
     whenReady(testProcess, Timeout(10 seconds)) { responses =>
       responses.length shouldBe 4

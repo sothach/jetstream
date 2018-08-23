@@ -38,7 +38,7 @@ class Stages(config: Config)(
 
   val accept = Flow[HttpResponse].mapAsync(parallelism = streamWidth) {
     case response if response.status == StatusCodes.NoContent =>
-      response.discardEntityBytes().future() map (_ => "")
+      response.discardEntityBytes().future() map (_ => Left("No content"))
 
     case response if response.status == StatusCodes.Unauthorized =>
       val message = response
@@ -47,23 +47,17 @@ class Stages(config: Config)(
 
     case response if response.status.isSuccess =>
       response.entity.toStrict(1 second) map { value =>
-        value.data.utf8String
+        Right(value.data.utf8String)
       }
     case response =>
-      response.discardEntityBytes().future() map (_ => "")
-
-  }.collect { case s if s.nonEmpty => s }
-
-  val parser = Flow[String].map(Parse.decodeEither[Report])
-
-  val errorSink = Sink.foreach[Either[String,Report]] { error =>
-    logger.warn(s"Error: ${error.left.get}")
+      response.discardEntityBytes().future() map (_ => Left("Not found"))
   }
 
-  val extractor = Flow[Either[String,Report]]
-    .divertTo(errorSink, _.isLeft)
-    .collect {
-      case Right(response) =>
-        response
-    }
+  val parser = Flow[Either[String,String]].map {
+    case Right(report) =>
+      Parse.decodeEither[Report](report): Either[String, Report]
+    case Left(error) =>
+      Left(error): Either[String, Report]
+  }
+
 }

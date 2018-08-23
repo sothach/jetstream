@@ -29,7 +29,7 @@ class WeatherApiSpec extends FlatSpec with Matchers with ScalaFutures with Befor
 
   "when the weather API call fails, the error" should "be handled correctly" in {
     val waiter = new Waiter
-    val config = Config(Map(Config.WeatherURLKey -> s"http://localhost:$port/data/2.5/weather", Config.WeatherAppIdKey -> ""))
+    val config = Config(Map(Config.WeatherURLKey -> s"http://localhost:$port/data/2.5/weather", Config.WeatherAppIdKey -> "12345"))
 
     val weather: WeatherProcess{def badProcess: Future[Option[Nothing]]} = new WeatherProcess(config) {
       val badCall = Flow[HttpRequest].mapAsync(parallelism=1) { _ =>
@@ -50,7 +50,7 @@ class WeatherApiSpec extends FlatSpec with Matchers with ScalaFutures with Befor
 
   "when all the process stages are concaternated, the report" should "be returned" in {
     val waiter = new Waiter
-    val config = Map(Config.WeatherURLKey -> s"http://localhost:$port/data/2.5/weather", Config.WeatherAppIdKey -> "")
+    val config = Map(Config.WeatherURLKey -> s"http://localhost:$port/data/2.5/weather", Config.WeatherAppIdKey -> "12345")
     val stages = new Stages(Config(config))
     import stages._
     resetJadler()
@@ -70,13 +70,13 @@ class WeatherApiSpec extends FlatSpec with Matchers with ScalaFutures with Befor
       .respond().withBody(expectedJson).withStatus(200)
       .thenRespond().withStatus(404)
 
-    val process = Source.single(("Dublin","ie")) via buildRequest via call via accept via parser via extractor runWith Sink.seq
+    val process = Source.single(("Dublin","ie")) via buildRequest via call via accept via parser runWith Sink.seq
 
     whenReady(process, Timeout(10 seconds)) {
-      case Seq(response) =>
+      case Right(response) +: _ =>
         response.wind.toString shouldBe "5.7 kph ?"
         waiter.dismiss
-      case Nil =>
+      case error =>
         fail
     }
     waiter.await(timeout(10 seconds), dismissals(1))
@@ -111,10 +111,11 @@ class WeatherApiSpec extends FlatSpec with Matchers with ScalaFutures with Befor
     val weather = new WeatherProcess(Config(defaultConfig))
     val process = weather.lookup("Dublin","ie")
     whenReady(process, Timeout(10 seconds)) {
-      case Seq(_) =>
-        fail
-      case Nil =>
+      case Seq(Left(error)) =>
+        error shouldBe "No content"
         waiter.dismiss
+      case _ =>
+        fail
     }
     waiter.await(timeout(10 seconds), dismissals(1))
   }
@@ -130,10 +131,11 @@ class WeatherApiSpec extends FlatSpec with Matchers with ScalaFutures with Befor
     val weather = new WeatherProcess(Config(defaultConfig))
     val process = weather.lookup("Dublin","ie")
     whenReady(process, Timeout(10 seconds)) {
-      case Seq(_) =>
-        fail
-      case Nil =>
+      case Seq(Left(error)) =>
+        error shouldBe "Not found"
         waiter.dismiss
+      case _ =>
+        fail
     }
     waiter.await(timeout(10 seconds), dismissals(1))
   }
@@ -149,10 +151,11 @@ class WeatherApiSpec extends FlatSpec with Matchers with ScalaFutures with Befor
     val weather = new WeatherProcess(Config(defaultConfig))
     val process = weather.lookup("Dublin","ie")
     whenReady(process, Timeout(10 seconds)) {
-      case Seq(_) =>
-        fail
-      case Nil =>
+      case Seq(Left(error)) =>
+        error shouldBe "Expected string bounds but found: xxx}"
         waiter.dismiss
+      case _ =>
+        fail
     }
     waiter.await(timeout(10 seconds), dismissals(1))
   }
@@ -172,10 +175,11 @@ class WeatherApiSpec extends FlatSpec with Matchers with ScalaFutures with Befor
     val weather = new WeatherProcess(Config(defaultConfig))
     val process = weather.lookup("Dublin","ie")
     whenReady(process, Timeout(10 seconds)) {
-      case Seq(_) =>
-        fail
-      case Nil =>
+      case Seq(Left(error)) =>
+        error shouldBe "Not found"
         waiter.dismiss
+      case _ =>
+        fail
     }
     waiter.await(timeout(10 seconds), dismissals(1))
   }
@@ -195,10 +199,11 @@ class WeatherApiSpec extends FlatSpec with Matchers with ScalaFutures with Befor
     val weather = new WeatherProcess(Config(defaultConfig))
     val process = weather.lookup("Dublin","ie")
     whenReady(process, Timeout(10 seconds)) {
-      case Seq(_) =>
-        fail
-      case Nil =>
+      case Seq(Left(error)) =>
+        error shouldBe "Not found"
         waiter.dismiss
+      case _ =>
+        fail
     }
     waiter.await(timeout(10 seconds), dismissals(1))
   }
