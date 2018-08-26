@@ -30,7 +30,7 @@ object Config {
   def apply(propMap: Map[String,String]): Config = {
     val props = propMap.foldLeft(new Properties) { case (acc,(key,value)) =>
       acc.setProperty(key,value)
-      acc˚
+      acc
     }
     Config(props)
   }
