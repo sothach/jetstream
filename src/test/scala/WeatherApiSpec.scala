@@ -36,7 +36,7 @@ class WeatherApiSpec extends FlatSpec with Matchers with ScalaFutures with Befor
         throw new RuntimeException("call failed")
       }
       val badProcess =
-        Source.single(("Dublin","ie")) via stages.buildRequest via badCall runWith Sink.headOption
+        Source.single(("Dublin","ie")) via stages.weatherRequest via badCall runWith Sink.headOption
     }
 
     whenReady(weather.badProcess, Timeout(10 seconds)) {
@@ -70,7 +70,7 @@ class WeatherApiSpec extends FlatSpec with Matchers with ScalaFutures with Befor
       .respond().withBody(expectedJson).withStatus(200)
       .thenRespond().withStatus(404)
 
-    val process = Source.single(("Dublin","ie")) via buildRequest via call via accept via parser runWith Sink.seq
+    val process = Source.single(("Dublin","ie")) via weatherRequest via call via accept via weatherParser runWith Sink.seq
 
     whenReady(process, Timeout(10 seconds)) {
       case Right(response) +: _ =>

@@ -1,12 +1,11 @@
 package jetstream.conversions
 
-import jetstream.model.Coordinate
 import jetstream.model.weather._
+import argonaut._
+import Argonaut._
+import jetstream.model.Coordinate
 
 object WeatherJsonProtocol {
-    import argonaut._
-    import Argonaut._
-
     implicit def formatCoordinate =
       casecodec2(Coordinate.apply, Coordinate.unapply)("lon", "lat")
     implicit def formatMain =
@@ -20,7 +19,7 @@ object WeatherJsonProtocol {
     implicit def formatSys =
       casecodec6(Sys.apply, Sys.unapply)("type", "id", "message", "country", "sunrise", "sunset")
     implicit def formatResponse =
-      casecodec12(Report.apply, Report.unapply)(
+      casecodec12(WeatherReport.apply, WeatherReport.unapply)(
         "base", "visibility", "dt", "id",
         "name", "cod", "coord", "weather",
         "main", "wind", "clouds", "sys")

@@ -66,7 +66,8 @@ see discussion [here](http://doc.akka.io/docs/akka/current/dispatchers.html)
 Interpret the HTTP response code, unpacking the payload.  This stage must ensure that any response entity is 
 fully consumed, preventing back-pressure on the underlying TCP connection
 #### `parser`
-Parse the JSON response received, building the domain objects
+Parse the JSON response received, building the domain objects.  Output is `Either` a successful `Report`, or an error string
+indicating why the request failed (http error, e.g., Not found, or Json parsing error)
 
 ### Prerequisites 
 The target language is Scala version 2.12, and uses the build tool sbt 1.2.1.

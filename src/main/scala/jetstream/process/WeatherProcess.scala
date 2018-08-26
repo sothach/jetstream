@@ -28,7 +28,8 @@ class WeatherProcess(config: Config)(implicit val system: ActorSystem) {
   val stages = new Stages(config)
   import stages._
 
-  val process =  buildRequest via call via accept via parser
+  val process =  weatherRequest via call via accept via weatherParser
+
   def lookup(town: String, country: String) =
     Source.single((town,country)) via process runWith Sink.seq
 

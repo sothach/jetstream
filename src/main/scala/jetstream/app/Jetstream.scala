@@ -89,8 +89,6 @@ class JetstreamRepl(console: ConsoleInOut, config: Config) {
   def run() = inputLoop(LookupWeather(console,config))
 }
 
-object Jetstream {
-  def main(args: Array[String]): Unit = {
-    new JetstreamRepl(new ConsoleInOut(), Config(args)).run()
-  }
+object Jetstream extends App {
+  new JetstreamRepl(new ConsoleInOut(), Config(args)).run()
 }

@@ -2,7 +2,7 @@ import akka.actor.ActorSystem
 import akka.stream.scaladsl.{Sink, Source}
 import akka.stream.{ActorMaterializer, ActorMaterializerSettings}
 import jetstream.app.Config
-import jetstream.model.weather.Report
+import jetstream.model.weather.WeatherReport
 import jetstream.process.WeatherProcess
 import net.jadler.Jadler._
 import net.jadler.Jadler.port
@@ -30,7 +30,7 @@ class ServiceSpec extends FlatSpec with Matchers  with ScalaFutures with BeforeA
       .havingPathEqualTo("/data/2.5/weather")
       .respond().withBody(nextResponse()).withStatus(200)
 
-    val testProcess: Future[Seq[Either[String,Report]]] = Source(testLocations) via weatherProcess.process runWith Sink.seq
+    val testProcess: Future[Seq[Either[String,WeatherReport]]] = Source(testLocations) via weatherProcess.process runWith Sink.seq
 
     whenReady(testProcess, Timeout(10 seconds)) { responses =>
       responses.length shouldBe 4
