@@ -11,7 +11,7 @@ import argonaut.Parse
 import com.typesafe.scalalogging.Logger
 import jetstream.app.Config
 import jetstream.model.weather.WeatherReport
-
+import jetstream.conversions.WeatherJsonProtocol._
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 
@@ -21,7 +21,6 @@ class Stages(config: Config)(
   private implicit val ec: ExecutionContext) {
 
   import config._
-  import jetstream.conversions.WeatherJsonProtocol._
 
   val logger = Logger(this.getClass)
 

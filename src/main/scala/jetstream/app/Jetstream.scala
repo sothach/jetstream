@@ -4,7 +4,7 @@ import java.util.Locale
 
 import akka.actor.ActorSystem
 import jetstream.process.WeatherProcess
-
+import scala.annotation.tailrec
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
@@ -74,7 +74,6 @@ case class LookupWeather(console: ConsoleInOut, config: Config)
 }
 
 class JetstreamRepl(console: ConsoleInOut, config: Config) {
-  import scala.annotation.tailrec
   implicit val system = ActorSystem("weather-system")
 
   @tailrec

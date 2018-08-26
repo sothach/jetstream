@@ -2,6 +2,7 @@
 ### Status
 [![Build Status](https://travis-ci.org/sothach/jetstream.png)](https://travis-ci.org/sothach/jetstream)
 [![Coverage Status](https://coveralls.io/repos/github/sothach/jetstream/badge.svg?branch=master)](https://coveralls.io/github/sothach/jetstream?branch=master)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/c76d1333d7f7444394c4cd49def96e8d)](https://www.codacy.com/project/sothach/jetstream/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=sothach/jetstream&amp;utm_campaign=Badge_Grade_Dashboard)
 
 ## Weather report
 This app is an example of using Akka-streams, Akka-http to query a web-service, and to process the results.
