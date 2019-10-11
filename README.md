@@ -40,10 +40,10 @@ and the code is a direct representation of this process flow:
 ```scala
 val process = buildRequest via call via accept via parser
 
-def lookup(town: String, country: String): Future[Seq[, ]] 
+def lookup(town: String, country: String): Future[String]] 
           = Source.single((town,country)) via process runWith Sink.seq
 ```
-The value `process` is a blue-print for an asynchronous process that, provided a source or one or more location
+The value `process` is a blueprint for an asynchronous process that, provided a source of one or more location
 tuples, will query the weather API for current weather conditions and render the results into domain objects,
 as the process's output.
 
